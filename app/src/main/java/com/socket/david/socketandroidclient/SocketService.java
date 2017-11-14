@@ -44,7 +44,7 @@ public class SocketService extends Service {
         try {
             Log.i(TAG, "service bound");
 
-            socket = IO.socket(new URI("http://192.168.8.103:3000"));
+            socket = IO.socket(new URI(getString(R.string.server_ip)));
 
             socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
 
