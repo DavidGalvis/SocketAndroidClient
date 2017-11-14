@@ -28,11 +28,42 @@
         android:text="@string/msg_status_disconnected"
         android:gravity="center"/>
 
-    <TextView
-        android:id="@+id/text_message"
+    <LinearLayout
+        android:id="@+id/layout_server_data"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/content_text_margin"
-        android:text="" />
+        android:visibility="invisible"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/text_subsidiary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/content_text_margin"
+            android:textStyle="bold"
+            android:text="" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/content_text_margin">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:textStyle="bold"
+                android:text="@string/title_document"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textStyle="bold"
+                android:text="@string/title_price"/>
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_document_list"
+            android:scrollbars="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
 
 </LinearLayout>

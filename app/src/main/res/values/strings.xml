@@ -6,5 +6,9 @@
     <string name="msg_status_connected">Connected</string>
     <string name="msg_status_disconnected">Disconnected</string>
     <string name="error_status_connection">Error connecting to server</string>
+    <string name="title_subsidiary">Subsidiary: </string>
+    <string name="title_document">Document</string>
+    <string name="title_price">Price</string>
+
 
 </resources>
