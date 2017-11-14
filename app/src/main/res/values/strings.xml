@@ -5,4 +5,6 @@
     <string name="msg_status_connecting">Connecting</string>
     <string name="msg_status_connected">Connected</string>
     <string name="msg_status_disconnected">Disconnected</string>
+    <string name="error_status_connection">Error connecting to server</string>
+
 </resources>

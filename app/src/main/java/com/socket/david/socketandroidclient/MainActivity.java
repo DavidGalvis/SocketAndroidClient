@@ -1,9 +1,13 @@
 package com.socket.david.socketandroidclient;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,12 +49,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(getApplicationContext(), SocketService.class);
-                bindService(intent, mConnection, BIND_AUTO_CREATE);
+                if(mService != null){
+                    mService.connectSocket();
+                    tvConectionStatus.setText(getString(R.string.msg_status_connecting));
+                    Log.i(TAG, "connecting socket");
+                }else{
+                    tvConectionStatus.setText(getString(R.string.error_status_connection));
+                    Log.i(TAG, "error connecting socket");
 
-                tvConectionStatus.setText(getString(R.string.msg_status_connecting));
-
-                // TODO: Set connection socket logic
+                }
             }
         });
 
@@ -58,17 +65,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if (mBound) {
-                    unbindService(mConnection);
-                    mBound = false;
-                    btnConnect.setVisibility(View.VISIBLE);
-                    btnDisconnect.setVisibility(View.GONE);
-                    tvConectionStatus.setText(getString(R.string.msg_status_disconnected));
-
-                    Toast.makeText(getApplicationContext(), "Service disconnected", Toast.LENGTH_SHORT).show();
-                    Log.i(TAG, "disconnecting service");
-                }
-                // TODO: Set disconnect socket logic
+                mService.disconnectSocket();
+                Log.i(TAG, "disconnecting socket");
             }
         });
 
@@ -81,14 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 // bound to LocalService, cast the IBinder and get LocalService instance
                 SocketService.LocalBinder binder = (SocketService.LocalBinder) service;
 
-                mService = binder.getSocketService();
-
+                mService = binder.getSocketService();;
                 mBound = true;
-                btnConnect.setVisibility(View.GONE);
-                btnDisconnect.setVisibility(View.VISIBLE);
-                tvConectionStatus.setText(getString(R.string.msg_status_connected));
 
-                Toast.makeText(getApplicationContext(), "Service connected", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Service connected");
             }
 
@@ -97,9 +90,76 @@ public class MainActivity extends AppCompatActivity {
                 mBound = false;
 
                 tvConectionStatus.setText(getString(R.string.msg_status_disconnected));
-                Toast.makeText(getApplicationContext(), "Service disconnected", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Service disconnected");
             }
         };
+
+        Intent intent = new Intent(getApplicationContext(), SocketService.class);
+        bindService(intent, mConnection, BIND_AUTO_CREATE);
     }
+
+    @Override
+    protected void onResume() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                receiver, new IntentFilter(SocketService.ACTION_SOCKET_CONNECTION));
+
+        super.onResume();
+
+        final Intent intent = getIntent();
+
+        if(intent != null){
+            String data = intent.getStringExtra(SocketService.EXTRA_ORDER_RECEIVED);
+            tvMessage.setText(data);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(
+                receiver);
+
+        super.onPause();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+    }
+
+    public BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.getAction().equals(SocketService.ACTION_SOCKET_CONNECTION)) {
+
+                String message = intent.getStringExtra(SocketService.EXTRA_CLIENT_CONNECTION);
+
+                if(message != null && message.equals(SocketService.CLIENT_CONNECTED)){
+                    btnConnect.setVisibility(View.GONE);
+                    btnDisconnect.setVisibility(View.VISIBLE);
+                    tvConectionStatus.setText(getString(R.string.msg_status_connected));
+                }
+                if(message != null && message.equals(SocketService.CLIENT_DISCONNECTED)){
+                    btnConnect.setVisibility(View.VISIBLE);
+                    btnDisconnect.setVisibility(View.GONE);
+                    tvMessage.setText("");
+                    tvConectionStatus.setText(getString(R.string.msg_status_disconnected));
+                }
+                if(message != null && message.equals(SocketService.SERVER_CONNECTION_ERROR)){
+                    tvConectionStatus.setText(getString(R.string.error_status_connection));
+                }
+
+            }
+        }
+    };
 }
