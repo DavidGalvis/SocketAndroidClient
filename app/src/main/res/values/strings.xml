@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">SocketAndroidClient</string>
+    <string name="app_name">Android Socket Client</string>
+    <string name="action_connect">Connect</string>
+    <string name="action_disconnect">Disconnect</string>
+    <string name="msg_status_connecting">Connecting</string>
+    <string name="msg_status_connected">Connected</string>
+    <string name="msg_status_disconnected">Disconnected</string>
 </resources>
